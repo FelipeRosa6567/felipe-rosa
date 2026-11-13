@@ -131,6 +131,7 @@ function drawPage(index, scroll = false) {
 function openBook(book, requestedPage, series) {
   activeBook = book;
   activeSeries = series;
+  $("open-contents").hidden = !book.contents;
   $("reader-title").textContent = book.title;
   $("reader-type").textContent = categories[book.type];
   $("reader-back").href = series ? "#quadrinho/" + series.id : "#estante";
@@ -167,6 +168,8 @@ function openSeries(series) {
 
 // Lê a parte do endereço que vem depois de # e escolhe qual tela mostrar.
 function route() {
+  if ($("contents").open) $("contents").close();
+  if ($("share-dialog").open) $("share-dialog").close();
   const hash = location.hash.slice(1);
   const bookRoute = hash.match(/^ler\/([a-z0-9-]+)(?:\/(\d+))?$/);
   const series = catalog.find(entry => entry.chapters &&
@@ -216,9 +219,54 @@ $("zoom").onclick = () => {
   $("zoom").setAttribute("aria-pressed", String(zoomed));
   $("zoom").textContent = zoomed ? "Ajustar" : "Ampliar";
 };
+// Os links do sumário usam a numeração original do PDF.
+$("open-contents").onclick = () => {
+  const book = activeBook;
+  $("contents-list").replaceChildren(...book.contents.map(({ title, entries }) => {
+    const group = node("details", "contents-group");
+    group.open = entries[0][0] <= pageIndex + 1 && entries.at(-1)[0] >= pageIndex + 1;
+    const list = node("ul");
+    list.append(...entries.map(([page, title]) => {
+      const item = node("li");
+      const link = node("a");
+      link.href = "#ler/" + book.id + "/" + page;
+      link.append(node("span", "", title), node("span", "contents-page", String(page)));
+      if (page === pageIndex + 1) link.setAttribute("aria-current", "page");
+      link.onclick = () => $("contents").close();
+      item.append(link);
+      return item;
+    }));
+    group.append(node("summary", "", title), list);
+    return group;
+  }));
+  $("contents").showModal();
+};
+
+// O endereço guarda a obra e a página, mesmo quando o leitor só usou as setas.
+$("share-page").onclick = () => {
+  if (!activeBook) return;
+  const url = new URL(location.href);
+  url.hash = "ler/" + activeBook.id + "/" + (pageIndex + 1);
+  $("share-url").value = url.href;
+  $("share-status").textContent = "";
+  $("share-dialog").showModal();
+  $("share-url").select();
+};
+$("copy-page").onclick = async () => {
+  const input = $("share-url");
+  try {
+    await navigator.clipboard.writeText(input.value);
+    $("share-status").textContent = "Link copiado.";
+  } catch {
+    input.focus();
+    input.select();
+    $("share-status").textContent = "Use a opção Copiar do seu navegador.";
+  }
+};
+
 // As setas viram as páginas e Esc volta à estante ou aos capítulos.
 document.addEventListener("keydown", event => {
-  if (!activeBook || event.altKey || event.ctrlKey || event.metaKey || event.target.closest("select")) return;
+  if (!activeBook || event.altKey || event.ctrlKey || event.metaKey || event.target.closest("select, dialog")) return;
   if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
     event.preventDefault();
     drawPage(pageIndex + (event.key === "ArrowLeft" ? -1 : 1), true);

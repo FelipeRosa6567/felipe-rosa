@@ -44,14 +44,23 @@
   <main id="home">
     <!-- Apresentação inicial, com a imagem de fundo e o botão que leva aos livros. -->
     <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-art" aria-hidden="true"></div>
       <div class="hero-inner">
-        <p class="eyebrow hero-label"><span></span> Minha estante de livros</p>
-        <h1 id="hero-title">Histórias de<br><em>página em página.</em></h1>
-        <p class="hero-copy">Sou Felipe Rosa, um escritor iniciante. Criei esta estante para compartilhar meus poemas e quadrinhos com quem quiser acompanhar meu trabalho desde o começo.</p>
-        <a class="button accent" href="#estante">Explorar a estante <span aria-hidden="true">↓</span></a>
+        <div>
+          <p class="eyebrow hero-label"><span></span> Minha estante de livros</p>
+          <h1 id="hero-title">Histórias de<br><em>página em página.</em></h1>
+          <p class="hero-copy">Sou Felipe Rosa, um escritor iniciante. Criei esta estante para compartilhar meus poemas e quadrinhos com quem quiser acompanhar meu trabalho desde o começo.</p>
+        </div>
+        <div class="featured">
+          <a href="#quadrinho/ultima-luz" class="featured-book">
+            <img src="arte/capa-ultima-luz.jpg" alt="Capa de A Última Luz" width="240" height="360">
+            <span class="button accent">Ler o quadrinho <span aria-hidden="true">→</span></span>
+          </a>
+          <a href="#ler/poesia" class="featured-book">
+            <img src="arte/diario/pagina-001.webp" alt="Capa de O diário perdido dos meus poemas" width="240" height="360">
+            <span class="button accent">Ler os poemas <span aria-hidden="true">→</span></span>
+          </a>
+        </div>
       </div>
-      <a class="credit" href="#quadrinho/ultima-luz">DA CAPA DE <i>A ÚLTIMA LUZ</i> <span aria-hidden="true">↗</span></a>
     </section>
 
     <!-- Estante e filtros. O JavaScript preenche o elemento books com os cartões das obras. -->
@@ -82,7 +91,11 @@
     <div class="reader-heading">
       <a class="back" id="reader-back" href="#estante">← Voltar à estante</a>
       <div><p id="reader-type" class="eyebrow"></p><h1 id="reader-title" tabindex="-1"></h1></div>
-      <button id="zoom" type="button" class="outline" aria-pressed="false">Ampliar</button>
+      <div class="reader-actions">
+        <button id="open-contents" type="button" class="outline" hidden>Sumário</button>
+        <button id="share-page" type="button" class="outline">Compartilhar esta página</button>
+        <button id="zoom" type="button" class="outline" aria-pressed="false">Ampliar</button>
+      </div>
     </div>
     <div class="reader-stage" id="reader-stage"></div>
     <!-- Botões para avançar ou voltar e seletor para ir direto a uma página. -->
@@ -94,6 +107,26 @@
       <span class="sr-only" id="reader-status" role="status"></span>
     </div>
   </main>
+
+  <dialog id="contents" class="reader-dialog" aria-labelledby="contents-title">
+    <div class="dialog-heading">
+      <h2 id="contents-title">Sumário</h2>
+      <form method="dialog"><button class="outline" autofocus>Fechar</button></form>
+    </div>
+    <div id="contents-list"></div>
+  </dialog>
+
+  <dialog id="share-dialog" class="reader-dialog" aria-labelledby="share-title">
+    <div class="dialog-heading">
+      <h2 id="share-title">Compartilhar esta página</h2>
+      <form method="dialog"><button class="outline">Fechar</button></form>
+    </div>
+    <label class="share-field">Link para esta página
+      <input id="share-url" type="text" readonly autofocus>
+    </label>
+    <button id="copy-page" class="accent" type="button">Copiar link</button>
+    <p id="share-status" class="share-status" role="status"></p>
+  </dialog>
 
   <!-- Página Sobre mim. Os links abaixo abrem os perfis do Instagram em outra aba. -->
   <main id="about" class="wrap about" hidden aria-labelledby="about-title">
