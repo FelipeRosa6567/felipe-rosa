@@ -3,6 +3,7 @@ const $ = id => document.getElementById(id);
 const categories = { quadrinho: "QUADRINHO", poesia: "POESIA" };
 const catalog = [...window.ESTANTE_INICIAL];
 let activeBook;
+let activeSeries;
 let pageIndex = 0;
 let filter = "todos";
 let touchStart;
@@ -39,6 +40,17 @@ function drawShelf() {
       link.setAttribute("aria-label", link.textContent + " " + book.title);
       info.append(link);
     }
+    const reading = resumePoint(book);
+    if (reading) {
+      const { entry, index } = reading;
+      const page = entry.pages[index];
+      const pageName = page.label === "Capa" ? "capa" :
+        "página " + (entry.label ? index : index + 1);
+      const resume = node("a", "resume-link", "Continuar " + (entry.label ? entry.label.toLowerCase() + " · " : "lendo · ") + pageName);
+      resume.href = "#ler/" + entry.id + "/" + (index + 1);
+      resume.setAttribute("aria-label", resume.textContent + " de " + book.title);
+      info.append(resume);
+    }
     const coverLink = node("a", "cover-link");
     coverLink.href = route;
     coverLink.setAttribute("aria-label", book.title);
@@ -51,6 +63,27 @@ function drawShelf() {
 // Cria uma chave diferente por obra para salvar a última página neste navegador.
 function storageKey(book) {
   return "estante-pagina-" + book.id;
+}
+
+// Reaproveita a página já guardada e identifica o último capítulo aberto.
+function stored(key) {
+  try { return localStorage.getItem(key); } catch { return null; }
+}
+
+function savedPage(book) {
+  const value = stored(storageKey(book));
+  const index = Number(value);
+  return value !== null && Number.isInteger(index) && index >= 0 && index < book.pages.length ? index : null;
+}
+
+function resumePoint(book) {
+  const chapters = book.chapters;
+  const lastChapter = chapters && stored("estante-capitulo-" + book.id);
+  const entry = chapters ? chapters.find(chapter => chapter.id === lastChapter) ||
+    [...chapters].reverse().find(chapter => savedPage(chapter) !== null) : book;
+  if (!entry?.pages?.length) return null;
+  const index = savedPage(entry);
+  return index === null ? null : { entry, index };
 }
 
 // Mostra a página escolhida, atualiza os botões e salva o ponto de leitura.
@@ -69,18 +102,35 @@ function drawPage(index, scroll = false) {
   }
   $("reader-stage").replaceChildren(element);
   $("previous").disabled = pageIndex === 0;
-  $("next").disabled = pageIndex === activeBook.pages.length - 1;
+  const lastPage = pageIndex === activeBook.pages.length - 1;
+  const chapters = activeSeries?.chapters;
+  const nextChapter = chapters?.[chapters.indexOf(activeBook) + 1];
+  $("next").disabled = lastPage;
+  $("next").hidden = Boolean(lastPage && nextChapter);
+  const chapterLink = $("next-chapter");
+  chapterLink.hidden = !$("next").hidden;
+  if (!chapterLink.hidden) {
+    chapterLink.textContent = "Ler " + nextChapter.label.toLowerCase() + " →";
+    chapterLink.href = "#ler/" + nextChapter.id;
+    if (document.activeElement === $("next")) chapterLink.focus();
+  } else if (document.activeElement === chapterLink && !$("next").disabled) {
+    $("next").focus();
+  }
   $("zoom").hidden = !page.image;
   $("jump").value = String(pageIndex);
   $("reader-status").textContent = page.label === "Capa" ? "Capa" :
     "Página " + (page.label ? page.label.replace(" / ", " de ") : (pageIndex + 1) + " de " + activeBook.pages.length);
-  try { localStorage.setItem(storageKey(activeBook), String(pageIndex)); } catch {}
+  try {
+    localStorage.setItem(storageKey(activeBook), String(pageIndex));
+    if (activeSeries) localStorage.setItem("estante-capitulo-" + activeSeries.id, activeBook.id);
+  } catch {}
   if (scroll) window.scrollTo({ top: 0, behavior: "instant" });
 }
 
 // Prepara o leitor e abre a página indicada no link ou a última página lida.
 function openBook(book, requestedPage, series) {
   activeBook = book;
+  activeSeries = series;
   $("reader-title").textContent = book.title;
   $("reader-type").textContent = categories[book.type];
   $("reader-back").href = series ? "#quadrinho/" + series.id : "#estante";
@@ -93,8 +143,7 @@ function openBook(book, requestedPage, series) {
     option.value = index;
     return option;
   }));
-  let saved = 0;
-  try { saved = Number(localStorage.getItem(storageKey(book))) || 0; } catch {}
+  const saved = savedPage(book) ?? 0;
   drawPage(requestedPage ? Number(requestedPage) - 1 : saved, true);
   $("reader-title").focus({ preventScroll: true });
 }
@@ -109,6 +158,7 @@ function openSeries(series) {
     image.src = chapter.cover;
     image.alt = "";
     link.append(image, node("h3", "", chapter.label));
+    if (chapter.name) link.append(node("p", "chapter-name", chapter.name));
     return link;
   }));
   window.scrollTo({ top: 0, behavior: "instant" });
@@ -134,6 +184,8 @@ function route() {
   if (book) openBook(book, bookRoute[2], parent);
   else {
     activeBook = undefined;
+    activeSeries = undefined;
+    if (!series && !about) drawShelf();
     if (series) {
       openSeries(series);
     } else if (about) {
@@ -187,6 +239,5 @@ $("reader-stage").addEventListener("touchend", event => {
 }, { passive: true });
 
 // Monta a estante e acompanha os links de navegação do site.
-drawShelf();
 window.addEventListener("hashchange", route);
 route();

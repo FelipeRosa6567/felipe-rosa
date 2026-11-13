@@ -66,6 +66,9 @@ nav{display:flex;align-items:center;gap:26px;font-size:.84rem}
 .chapter:hover,.chapter:focus-visible{border-color:var(--accent)}
 .chapter img{display:block;width:100%;aspect-ratio:2/3;object-fit:cover}
 .chapter h3{padding:12px;font-size:clamp(26px,4vw,38px)}
+.chapter-name{padding:0 12px 14px;color:var(--muted);font-size:.88rem}
+.resume-link{display:block;width:fit-content;margin-top:8px;color:var(--paper);font-size:.8rem;text-decoration:underline;text-underline-offset:3px}
+.resume-link:hover{color:var(--accent)}
 .cover-placeholder{display:grid;place-items:center;text-align:center;aspect-ratio:2/3;padding:14px;background:repeating-linear-gradient(90deg,transparent 0 96%,#ffffff0c 96% 97%,transparent 97%),radial-gradient(ellipse at 40% 40%,#55613c,#303a22);font:italic clamp(22px,2.7vw,42px)/1 var(--display);color:#e1e6bf}
 .book-info{padding:clamp(14px,2.35vw,33px);align-self:center;min-width:0;overflow-wrap:anywhere}
 .book-info h3{font-size:clamp(31px,4.1vw,56px);margin:9px 0 10px}
