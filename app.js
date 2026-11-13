@@ -31,7 +31,8 @@ function drawShelf() {
     }
     const info = node("div", "book-info");
     info.append(node("p", "eyebrow", categories[book.type]), node("h3", "", book.title));
-    if (book.label) info.append(node("p", "book-label", book.label));
+    if (book.chapters) info.append(node("p", "book-label", book.chapters.length + (book.chapters.length === 1 ? " capítulo" : " capítulos")));
+    else if (book.label) info.append(node("p", "book-label", book.label));
     info.append(node("p", "summary", book.summary));
     const route = book.chapters ? "#quadrinho/" + book.id : "#ler/" + book.id;
     if (book.chapters || book.pages?.length) {
