@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pt-BR">
+<!-- Configurações da página. Aqui ficam o título da aba, as fontes, o CSS e os scripts. -->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171610">
+  <meta name="description" content="Leia os poemas e quadrinhos de Felipe Rosa e acompanhe suas obras.">
+  <title>Felipe Rosa — Poesia e quadrinhos</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23c6e291'/%3E%3Cpath d='M8 8h15v16H8zM11 8v16' fill='none' stroke='%23171610' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <!-- O CSS controla a aparência. O catálogo deve carregar antes do JavaScript que monta a estante. -->
+  <link rel="stylesheet" href="style.css">
+  <script defer src="catalogo.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <!-- Cabeçalho que aparece em todas as telas. Links que começam com # mudam a seção sem recarregar o site. -->
+  <header class="masthead">
+    <a class="brand" href="#" aria-label="Felipe Rosa, início">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M16 10c-2.7-2.4-6.1-3-10-2v14c4-1 7.3-.4 10 2 2.7-2.4 6-3 10-2V8c-3.9-1-7.3-.4-10 2Zm0 0v14" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
+      Felipe Rosa
+    </a>
+    <nav aria-label="Navegação principal">
+      <a class="nav-link" href="#estante">A estante</a>
+      <a class="studio-link" href="#sobre">Sobre mim <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+
+  <main id="home">
+    <!-- Apresentação inicial, com a imagem de fundo e o botão que leva aos livros. -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-art" aria-hidden="true"></div>
+      <div class="hero-inner">
+        <p class="eyebrow hero-label"><span></span> Minha estante de livros</p>
+        <h1 id="hero-title">Histórias de<br><em>página em página.</em></h1>
+        <p class="hero-copy">Sou Felipe Rosa, um escritor iniciante. Criei esta estante para compartilhar meus poemas e quadrinhos com quem quiser acompanhar meu trabalho desde o começo.</p>
+        <a class="button accent" href="#estante">Explorar a estante <span aria-hidden="true">↓</span></a>
+      </div>
+      <a class="credit" href="#quadrinho/ultima-luz">DA CAPA DE <i>A ÚLTIMA LUZ</i> <span aria-hidden="true">↗</span></a>
+    </section>
+
+    <!-- Estante e filtros. O JavaScript preenche o elemento books com os cartões das obras. -->
+    <section class="shelf wrap" id="estante" aria-labelledby="shelf-title">
+      <div class="shelf-heading">
+        <h2 id="shelf-title">A estante</h2>
+        <div class="filters" aria-label="Filtrar obras">
+          <button type="button" data-filter="todos" aria-pressed="true">Tudo</button>
+          <button type="button" data-filter="quadrinho" aria-pressed="false">Quadrinhos</button>
+          <button type="button" data-filter="poesia" aria-pressed="false">Poesia</button>
+        </div>
+      </div>
+      <div id="books" class="books"></div>
+    </section>
+  </main>
+
+  <!-- Lista de capítulos do quadrinho. O JavaScript insere a capa e o link de cada capítulo. -->
+  <main id="series" class="wrap series" hidden aria-labelledby="series-title">
+    <a class="back" href="#estante">← Voltar à estante</a>
+    <p class="eyebrow">QUADRINHO</p>
+    <h1 id="series-title" tabindex="-1"></h1>
+    <h2>Capítulos</h2>
+    <div id="chapters" class="chapters"></div>
+  </main>
+
+  <!-- Leitor. O JavaScript troca o conteúdo de reader-stage conforme o leitor vira a página. -->
+  <main id="reader" class="reader" hidden aria-labelledby="reader-title">
+    <div class="reader-heading">
+      <a class="back" id="reader-back" href="#estante">← Voltar à estante</a>
+      <div><p id="reader-type" class="eyebrow"></p><h1 id="reader-title" tabindex="-1"></h1></div>
+      <button id="zoom" type="button" class="outline" aria-pressed="false">Ampliar</button>
+    </div>
+    <div class="reader-stage" id="reader-stage"></div>
+    <!-- Botões para avançar ou voltar e seletor para ir direto a uma página. -->
+    <div class="reader-controls">
+      <button type="button" id="previous" class="outline" aria-label="Página anterior">← <span>Anterior</span></button>
+      <label class="page-picker"><span class="sr-only">Ir para a página</span><select id="jump"></select></label>
+      <button type="button" id="next" class="accent" aria-label="Próxima página"><span>Próxima</span> →</button>
+      <span class="sr-only" id="reader-status" role="status"></span>
+    </div>
+  </main>
+
+  <!-- Página Sobre mim. Os links abaixo abrem os perfis do Instagram em outra aba. -->
+  <main id="about" class="wrap about" hidden aria-labelledby="about-title">
+    <a class="back" href="#estante">← Voltar à estante</a>
+    <p class="eyebrow">Sobre mim</p>
+    <h1 id="about-title" tabindex="-1">Felipe Rosa</h1>
+    <div class="about-copy">
+      <p>Estou dando meus primeiros passos como escritor. Criei este espaço para levar minhas obras adiante e dividir com você o que estou escrevendo.</p>
+      <p>Na estante você encontra meu livro <cite>O diário perdido dos meus poemas</cite> e <cite>A Última Luz</cite>, meu quadrinho sobre um apocalipse zumbi.</p>
+    </div>
+    <section class="socials" aria-labelledby="socials-title">
+      <h2 id="socials-title">Minhas redes sociais</h2>
+      <ul class="social-list">
+        <li><a href="https://www.instagram.com/a_ultima_luz_hq/" target="_blank" rel="noopener noreferrer"><span>Quadrinho · A Última Luz <small>@a_ultima_luz_hq</small></span><span aria-hidden="true">↗</span></a></li>
+        <li><a href="https://www.instagram.com/fillips_oliginal/" target="_blank" rel="noopener noreferrer"><span>Poesia <small>@fillips_oliginal</small></span><span aria-hidden="true">↗</span></a></li>
+        <li><a href="https://www.instagram.com/fillips_rosa/" target="_blank" rel="noopener noreferrer"><span>Perfil pessoal <small>@fillips_rosa</small></span><span aria-hidden="true">↗</span></a></li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- Rodapé com atalhos para o início e a estante. -->
+  <footer class="footer"><div class="wrap"><a class="brand" href="#">Felipe Rosa</a><a href="#estante">Voltar à estante ↑</a></div></footer>
+  <noscript>Ative o JavaScript no navegador para abrir o leitor.</noscript>
+</body>
+</html>
