@@ -55,7 +55,7 @@ nav{display:flex;align-items:center;gap:26px;font-size:.84rem}
 .series .eyebrow{margin:32px 0 9px}
 .series h1{font-size:clamp(57px,9vw,108px)}
 .series h2{font-size:clamp(36px,5vw,55px);margin:30px 0 16px}
-.chapters{display:grid;grid-template-columns:repeat(auto-fill,minmax(0,min(100%,240px)));gap:clamp(10px,3vw,24px)}
+.chapters{display:grid;grid-template-columns:repeat(auto-fill,minmax(0,min(100%,210px)));gap:clamp(10px,3vw,24px)}
 .chapter{overflow:hidden;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
 .chapter:hover,.chapter:focus-visible{border-color:var(--accent)}
 .chapter img{display:block;width:100%;aspect-ratio:2/3;object-fit:cover}
