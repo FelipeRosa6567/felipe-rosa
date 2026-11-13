@@ -25,7 +25,7 @@ window.ESTANTE_INICIAL = [
     cover: "arte/capa-ultima-luz.jpg",
     summary: "O mundo conhecido acabou. Em meio a uma cidade tomada pelos mortos, sobreviver é só o começo.",
     // A ordem desta lista define a ordem em que as capas aparecem na tela de capítulos.
-    chapters: [chapter(1, "jpg", "Acorda, Celina"), chapter(2, "webp", "Vamos juntos"), chapter(3, "webp", "Reencontro sob cerco")]
+    chapters: [chapter(1, "jpg", "Acorda, Celina"), chapter(2, "webp", "Vamos juntos"), chapter(3, "webp", "Reencontro sob cerco"), chapter(4, "webp", "O que resta")]
   },
   {
     // O livro de poesia usa uma imagem por página para preservar a diagramação do PDF.
