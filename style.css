@@ -62,6 +62,9 @@ nav{display:flex;align-items:center;gap:26px;font-size:.84rem}
 .chapter h3{padding:12px;font-size:clamp(26px,4vw,38px)}
 .chapter-name{padding:0 12px 14px;color:var(--muted);font-size:.88rem}
 .chapter-progress{padding:0 12px 14px;color:var(--accent);font-size:.8rem}
+/* Os selos acompanham a capa sem mudar a quantidade de colunas da estante. */
+.chapter-read{position:absolute;bottom:10px;left:10px;padding:5px 10px;border-radius:999px;background:var(--ink);color:var(--accent);border:1px solid var(--accent);font-size:.8rem;font-weight:700}
+.chapter-completed{border-color:#c6e29188}
 /* Posiciona a notificação no canto superior da capa, sem alterar o botão de leitura. */
 .featured-cover{position:relative;display:block}
 .chapter-notification{position:absolute;top:10px;right:10px;padding:6px 10px;border-radius:999px;background:var(--accent);color:var(--ink);font-size:.7rem;font-weight:800;letter-spacing:.07em;line-height:1.2;box-shadow:0 2px 10px #0006;border:1px solid #17161033}
@@ -91,6 +94,20 @@ nav{display:flex;align-items:center;gap:26px;font-size:.84rem}
 .back{color:var(--accent);font-size:.82rem}
 .reader-stage{display:grid;justify-items:center;padding:4px 12px 20px;min-height:210px;touch-action:pan-y pinch-zoom}
 .reader-stage.zoomed{touch-action:auto}
+.reader-stage .comic-page{cursor:zoom-in}
+/* O painel limita a rolagem à imagem e mantém Fechar sempre visível. */
+.zoom-dialog{width:min(96vw,1200px);max-width:96vw;height:92dvh;max-height:92dvh;padding:12px;margin:auto;border:1px solid var(--line);border-radius:8px;background:var(--ink);color:var(--paper);overflow:hidden}
+.zoom-dialog[open]{display:flex;flex-direction:column;gap:8px}
+.zoom-dialog::backdrop{background:#000c}
+.zoom-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;flex-shrink:0}
+.zoom-toolbar h2{font-size:clamp(25px,4vw,36px)}
+.zoom-toolbar label{display:flex;align-items:center;gap:6px;font-size:.85rem}
+.zoom-toolbar select{min-height:44px;background:var(--surface);color:var(--paper);border:1px solid var(--line);border-radius:5px;padding:6px}
+.zoom-hint{font-size:.8rem;color:var(--muted);flex-shrink:0}
+.zoom-viewport{overflow:auto;min-height:0;flex:1;overscroll-behavior:contain;touch-action:pan-x pan-y pinch-zoom}
+.zoom-viewport img{display:block;max-width:none;height:auto}
+/* Fundo claro para os poemas, sem filtros sobre as imagens do livro. */
+.reader.light-reading{--ink:#f4efdf;--surface:#fffaf0;--paper:#27251e;--muted:#5e584a;--line:#bcb3a0;--accent:#3c5722;background:var(--ink);color:var(--paper)}
 .comic-page{display:block;max-width:100%;max-height:calc(100svh - 244px);min-height:150px;height:auto;width:auto;object-fit:contain;background:var(--surface);box-shadow:0 10px 35px #0006}
 .zoomed .comic-page{max-height:none;width:min(100%,950px)}
 .text-page{background:#f2ead6;color:#252015;border-radius:2px;box-shadow:0 10px 35px #0006;width:min(100%,650px);padding:clamp(27px,8vw,86px);min-height:430px;font:400 clamp(23px,4vw,32px)/1.45 var(--display);white-space:pre-wrap;overflow-wrap:anywhere}

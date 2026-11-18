@@ -97,7 +97,8 @@
       <div><p id="reader-type" class="eyebrow"></p><h1 id="reader-title" tabindex="-1"></h1></div>
       <div class="reader-actions">
         <button id="open-contents" type="button" class="outline" hidden>Sumário</button>
-        <button id="zoom" type="button" class="outline" aria-pressed="false">Ampliar</button>
+        <button id="reading-theme" type="button" class="outline" aria-pressed="false" hidden>Fundo claro</button>
+        <button id="zoom" type="button" class="outline" aria-haspopup="dialog">Ampliar</button>
       </div>
     </div>
     <div class="reader-stage" id="reader-stage"></div>
@@ -112,6 +113,17 @@
       <span class="sr-only" id="reader-status" role="status"></span>
     </div>
   </main>
+
+  <!-- Ampliação independente: permite ler detalhes e voltar ao mesmo ponto. -->
+  <dialog id="zoom-dialog" class="zoom-dialog" aria-labelledby="zoom-title">
+    <div class="zoom-toolbar">
+      <h2 id="zoom-title">Página ampliada</h2>
+      <label>Zoom <select id="zoom-level"><option value="100">100%</option><option value="150">150%</option><option value="200">200%</option><option value="300">300%</option></select></label>
+      <form method="dialog"><button class="outline" autofocus>Fechar</button></form>
+    </div>
+    <p class="zoom-hint">Role para ver os detalhes da página.</p>
+    <div id="zoom-viewport" class="zoom-viewport" tabindex="0" aria-label="Página ampliada. Use a rolagem para explorar."><img id="zoom-image" alt=""></div>
+  </dialog>
 
   <dialog id="contents" class="reader-dialog" aria-labelledby="contents-title">
     <div class="dialog-heading">

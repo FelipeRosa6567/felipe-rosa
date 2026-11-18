@@ -102,8 +102,22 @@ function knownChapters(series) {
 
 function rememberChapters(series) {
   try {
+    localStorage.setItem("estante-novos-" + series.id, JSON.stringify(newChapters(series)));
     localStorage.setItem("estante-conhecidos-" + series.id, JSON.stringify(series.chapters.map(chapter => chapter.id)));
   } catch {}
+}
+
+// Preserva o aviso de cada lançamento até aquele capítulo ser aberto.
+function newChapters(series) {
+  const known = knownChapters(series);
+  let pending = [];
+  try {
+    const value = JSON.parse(stored("estante-novos-" + series.id));
+    if (Array.isArray(value)) pending = value;
+  } catch {}
+  return series.chapters.filter(chapter => savedPage(chapter) === null &&
+    (pending.includes(chapter.id) || (known !== null && !known.includes(chapter.id))))
+    .map(chapter => chapter.id);
 }
 
 function updateComicButton() {
@@ -118,7 +132,7 @@ function updateComicButton() {
     const known = knownChapters(series);
     // Históricos anteriores a este recurso recebem o catálogo atual como referência.
     if (known === null) rememberChapters(series);
-    else hasNewChapter = series.chapters.some(chapter => !known.includes(chapter.id));
+    else hasNewChapter = newChapters(series).length > 0;
     const { entry, index } = reading;
     const following = series.chapters[series.chapters.indexOf(entry) + 1];
     link.href = index === entry.pages.length - 1 && following
@@ -137,6 +151,18 @@ function pageElement(page, index) {
     element.src = page.image;
     element.alt = page.alt || "Página " + (index + 1) + " de " + activeBook.title;
     element.draggable = false;
+    // Um toque abre a página ampliada, inclusive na leitura contínua.
+    const enlarge = () => openZoom(index);
+    element.tabIndex = 0;
+    element.setAttribute("aria-label", element.alt + ". Ampliar página");
+    element.setAttribute("aria-haspopup", "dialog");
+    element.addEventListener("click", enlarge);
+    element.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        enlarge();
+      }
+    });
     element.addEventListener("error", () => {
       if (element.isConnected) {
         const message = node("p", "status", "Esta página não carregou. Recarregue para tentar novamente.");
@@ -181,7 +207,7 @@ function drawPage(index, scroll = false) {
   } else if (document.activeElement === chapterLink && !$("next").disabled) {
     $("next").focus();
   }
-  $("zoom").hidden = continuous || !page.image;
+  $("zoom").hidden = !page.image;
   $("jump").value = String(pageIndex);
   $("reader-status").textContent = page.label === "Capa" ? "Capa" :
     "Página " + (page.label ? page.label.replace(" / ", " de ") : (pageIndex + 1) + " de " + activeBook.pages.length);
@@ -198,6 +224,8 @@ function openBook(book, requestedPage, series) {
   activeBook = book;
   activeSeries = series;
   if (series) rememberChapters(series);
+  $("reading-theme").hidden = book.type !== "poesia";
+  updateReadingTheme();
   continuous = book.type === "quadrinho" && stored("estante-modo-leitura") === "continuo";
   $("reading-mode").hidden = book.type !== "quadrinho";
   $("reading-mode").setAttribute("aria-pressed", String(continuous));
@@ -210,7 +238,6 @@ function openBook(book, requestedPage, series) {
   $("reader-back").href = series ? "#quadrinho/" + series.id : "#estante";
   $("reader-back").textContent = series ? "← Voltar aos capítulos" : "← Voltar à estante";
   $("reader-stage").classList.remove("zoomed");
-  $("zoom").setAttribute("aria-pressed", "false");
   $("zoom").textContent = "Ampliar";
   $("jump").replaceChildren(...book.pages.map((page, index) => {
     const option = node("option", "", page.label || (index + 1) + " / " + book.pages.length);
@@ -225,16 +252,28 @@ function openBook(book, requestedPage, series) {
 // Monta a lista de capítulos. Cada capa aponta para o leitor daquele capítulo.
 function openSeries(series) {
   $("series-title").textContent = series.title;
+  const releases = newChapters(series);
   $("chapters").replaceChildren(...series.chapters.map(chapter => {
     const link = node("a", "chapter");
     link.href = "#ler/" + chapter.id;
     const image = node("img");
     image.src = chapter.cover;
     image.alt = "";
-    link.append(image, node("h3", "", chapter.label));
+    const cover = node("span", "featured-cover");
+    cover.append(image);
+    if (releases.includes(chapter.id)) {
+      const badge = node("span", "chapter-notification", "NEW CAP");
+      badge.setAttribute("aria-label", "Novo capítulo disponível");
+      cover.append(badge);
+    }
+    link.append(cover, node("h3", "", chapter.label));
     if (chapter.name) link.append(node("p", "chapter-name", chapter.name));
     const saved = savedPage(chapter);
     const completed = stored("estante-concluido-" + chapter.id) === "1" || saved === chapter.pages.length - 1;
+    if (completed) {
+      link.classList.add("chapter-completed");
+      cover.append(node("span", "chapter-read", "✓ Lido"));
+    }
     if (completed || saved !== null) {
       link.append(node("p", "chapter-progress", completed ? "Concluído" :
         saved === 0 ? "Em leitura · capa" : "Em leitura · página " + saved));
@@ -249,6 +288,7 @@ function openSeries(series) {
 function route() {
   if ($("contents").open) $("contents").close();
   if ($("share-dialog").open) $("share-dialog").close();
+  if ($("zoom-dialog").open) $("zoom-dialog").close();
   const hash = location.hash.slice(1);
   const bookRoute = hash.match(/^ler\/([a-z0-9-]+)(?:\/(\d+))?$/);
   const series = catalog.find(entry => entry.chapters &&
@@ -293,10 +333,34 @@ document.querySelectorAll("[data-filter]").forEach(button => {
 $("previous").onclick = () => drawPage(pageIndex - 1, true);
 $("next").onclick = () => drawPage(pageIndex + 1, true);
 $("jump").onchange = event => drawPage(Number(event.target.value), true);
-$("zoom").onclick = () => {
-  const zoomed = $("reader-stage").classList.toggle("zoomed");
-  $("zoom").setAttribute("aria-pressed", String(zoomed));
-  $("zoom").textContent = zoomed ? "Ajustar" : "Ampliar";
+// O painel ampliado permite rolar a imagem sem trocar a página por acidente.
+function openZoom(index) {
+  const page = activeBook?.pages[index];
+  if (!page?.image) return;
+  $("zoom-image").src = page.image;
+  $("zoom-image").alt = page.alt || "Página " + (index + 1) + " de " + activeBook.title;
+  $("zoom-level").value = "150";
+  $("zoom-image").style.width = "150%";
+  $("zoom-dialog").showModal();
+  $("zoom-viewport").scrollTo(0, 0);
+}
+$("zoom").onclick = () => openZoom(pageIndex);
+$("zoom-level").onchange = event => {
+  $("zoom-image").style.width = event.target.value + "%";
+};
+// A preferência muda o fundo do leitor, preservando as cores originais das páginas.
+function updateReadingTheme() {
+  const light = stored("estante-fundo-leitura") === "claro";
+  $("reader").classList.toggle("light-reading", activeBook?.type === "poesia" && light);
+  $("reading-theme").setAttribute("aria-pressed", String(light));
+  $("reading-theme").textContent = light ? "Fundo escuro" : "Fundo claro";
+}
+$("reading-theme").onclick = () => {
+  const light = !$("reader").classList.contains("light-reading");
+  try { localStorage.setItem("estante-fundo-leitura", light ? "claro" : "escuro"); } catch {}
+  $("reader").classList.toggle("light-reading", light);
+  $("reading-theme").setAttribute("aria-pressed", String(light));
+  $("reading-theme").textContent = light ? "Fundo escuro" : "Fundo claro";
 };
 // Alterna o formato preservando a página atual e a preferência neste navegador.
 $("reading-mode").onclick = () => {
@@ -308,7 +372,6 @@ $("reading-mode").onclick = () => {
   $("reader-stage").classList.remove("zoomed");
   $("reader-stage").classList.toggle("continuous", continuous);
   $("reader-stage").replaceChildren();
-  $("zoom").setAttribute("aria-pressed", "false");
   $("zoom").textContent = "Ampliar";
   drawPage(current, true);
 };
@@ -390,8 +453,18 @@ $("reader-stage").addEventListener("touchend", event => {
   const dx = event.changedTouches[0].clientX - touchStart.clientX;
   const dy = event.changedTouches[0].clientY - touchStart.clientY;
   touchStart = undefined;
-  if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) drawPage(pageIndex + (dx < 0 ? 1 : -1), true);
+  if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+    drawPage(pageIndex + (dx < 0 ? 1 : -1), true);
+    // O clique gerado ao terminar um deslize não deve abrir a ampliação.
+    suppressPageClick = true;
+    setTimeout(() => { suppressPageClick = false; }, 400);
+  }
 }, { passive: true });
+
+let suppressPageClick = false;
+$("reader-stage").addEventListener("click", event => {
+  if (suppressPageClick) { event.preventDefault(); event.stopPropagation(); }
+}, true);
 
 // Monta a estante e acompanha os links de navegação do site.
 window.addEventListener("hashchange", route);
