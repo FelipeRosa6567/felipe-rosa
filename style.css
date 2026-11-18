@@ -158,5 +158,17 @@ nav{display:flex;align-items:center;gap:26px;font-size:.84rem}
 @media(max-width:850px){.hero-inner{grid-template-columns:1fr;gap:18px;padding-block:45px}.hero-copy{margin-bottom:0}.featured{max-width:470px}.reader-heading{grid-template-columns:1fr 2fr}.reader-actions{grid-column:1/-1;justify-content:center}}
 @media(max-width:550px){.hero h1{font-size:clamp(52px,12.8vw,71px)}.hero-inner{padding-block:32px}.reader-heading{grid-template-columns:1fr}.reader-actions{justify-content:flex-start}}
 @media(max-width:550px){.chapters{grid-template-columns:repeat(auto-fill,minmax(min(100%,145px),1fr))}}
+/* O rodapé agrupa os atalhos e a página de apoio mantém o Pix legível no celular. */
+.footer-actions{display:flex;align-items:center;justify-content:flex-end;gap:18px;flex-wrap:wrap}
+.footer .donation-link{color:var(--accent);font-size:.8rem}
+.donations{max-width:900px}
+.donations h1{font-size:clamp(54px,9vw,90px)}
+.donation-card{max-width:570px;margin-top:28px;padding:clamp(18px,4vw,28px);background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.donation-card .eyebrow{margin:0 0 8px;font-size:.7rem}
+.donation-card h2{font-size:clamp(32px,6vw,46px);margin-bottom:18px}
+.donation-card input{font-size:clamp(.82rem,3.5vw,1rem)}
+.donation-help{margin-top:16px;color:var(--muted);font-size:.85rem}
+.donation-thanks{margin-top:24px;color:var(--muted);font-size:.9rem}
+@media(max-width:550px){.footer .wrap{padding-block:20px;align-items:flex-start;flex-direction:column}.footer-actions{width:100%;justify-content:space-between;gap:10px}.donation-card .accent{width:100%}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 

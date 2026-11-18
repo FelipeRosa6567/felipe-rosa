@@ -299,7 +299,9 @@ function route() {
   const book = parent?.chapters.find(chapter => chapter.id === bookId) ||
     catalog.find(entry => entry.id === bookId && entry.pages?.length);
   const about = hash === "sobre" || hash === "publicar";
-  $("home").hidden = Boolean(book || about || series);
+  const donations = hash === "apoie";
+  $("home").hidden = Boolean(book || about || series || donations);
+  $("donations").hidden = !donations;
   $("about").hidden = !about;
   $("series").hidden = !series;
   $("reader").hidden = !book;
@@ -307,12 +309,16 @@ function route() {
   else {
     activeBook = undefined;
     activeSeries = undefined;
-    if (!series && !about) drawShelf();
+    if (!series && !about && !donations) drawShelf();
     if (series) {
       openSeries(series);
     } else if (about) {
       window.scrollTo({ top: 0, behavior: "instant" });
       $("about-title").focus({ preventScroll: true });
+    } else if (donations) {
+      window.scrollTo({ top: 0, behavior: "instant" });
+      $("donations-title").focus({ preventScroll: true });
+      $("pix-status").textContent = "";
     } else if (hash === "estante") {
       $("estante").scrollIntoView();
     } else {
@@ -320,6 +326,19 @@ function route() {
     }
   }
 }
+
+// Copia somente a chave Pix. O envio da contribuição é feito pelo próprio leitor no banco.
+$("copy-pix").onclick = async () => {
+  const input = $("donation-pix");
+  try {
+    await navigator.clipboard.writeText(input.value);
+    $("pix-status").textContent = "Chave Pix copiada. Obrigado pelo apoio!";
+  } catch {
+    input.focus();
+    input.select();
+    $("pix-status").textContent = "Selecione e copie a chave acima usando a opção Copiar do seu navegador.";
+  }
+};
 
 // Ao clicar em um filtro, redesenha a estante com a categoria escolhida.
 document.querySelectorAll("[data-filter]").forEach(button => {

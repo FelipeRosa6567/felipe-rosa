@@ -164,8 +164,31 @@
     </section>
   </main>
 
-  <!-- Rodapé com atalhos para o início e a estante. -->
-  <footer class="footer"><div class="wrap"><a class="brand" href="#">Felipe Rosa</a><a href="#estante">Voltar à estante ↑</a></div></footer>
+  <!-- Página de apoio: a chave é um e-mail Pix, que pode ser copiado para o aplicativo do banco. -->
+  <main id="donations" class="wrap about donations" hidden aria-labelledby="donations-title">
+    <a class="back" href="#estante">← Voltar à estante</a>
+    <p class="eyebrow">Faça parte desta história</p>
+    <h1 id="donations-title" tabindex="-1">Apoie o projeto</h1>
+    <div class="about-copy">
+      <p>Criei esta estante para compartilhar meus poemas, livros e quadrinhos e levar minhas histórias a mais pessoas. Sou um escritor iniciante, e este site é um espaço para você ler minhas obras e acompanhar cada novo capítulo.</p>
+      <p>As doações ajudam a dar continuidade às histórias e aos livros do site, além de apoiar o desenvolvimento e as melhorias deste espaço.</p>
+      <p>Se quiser contribuir, você pode enviar um Pix de qualquer valor. Toda ajuda é bem-vinda para o projeto seguir adiante. A contribuição é voluntária, e as obras continuam disponíveis para todos lerem gratuitamente.</p>
+    </div>
+    <section class="donation-card" aria-labelledby="pix-title">
+      <p class="eyebrow">Qualquer valor faz diferença</p>
+      <h2 id="pix-title">Contribua pelo Pix</h2>
+      <label class="share-field" for="donation-pix">Chave Pix · e-mail
+        <input id="donation-pix" type="text" value="liperosa1000@gmail.com" readonly spellcheck="false">
+      </label>
+      <button id="copy-pix" type="button" class="accent">Copiar chave Pix</button>
+      <p id="pix-status" class="share-status" role="status" aria-live="polite"></p>
+      <p class="donation-help">No aplicativo do seu banco, escolha Pix, use a chave de e-mail acima e informe o valor que desejar.</p>
+    </section>
+    <p class="donation-thanks">Obrigado por ler, acompanhar e ajudar minhas histórias a continuar.<br>Felipe Rosa</p>
+  </main>
+
+  <!-- Rodapé com o apoio ao projeto ao lado do retorno à estante. -->
+  <footer class="footer"><div class="wrap"><a class="brand" href="#">Felipe Rosa</a><div class="footer-actions"><a class="button outline donation-link" href="#apoie">Apoie o projeto ♡</a><a href="#estante">Voltar à estante ↑</a></div></div></footer>
   <noscript>Ative o JavaScript no navegador para abrir o leitor.</noscript>
 </body>
 </html>
