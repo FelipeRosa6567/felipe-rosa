@@ -11,15 +11,6 @@ let continuous = false;
 let scrollFrame = 0;
 let nextImage;
 
-// O destaque acompanha automaticamente o último capítulo do catálogo.
-const newestSeries = catalog.find(book => book.chapters?.length);
-if (newestSeries) {
-  const newest = newestSeries.chapters.at(-1);
-  $("latest-chapter").textContent = newest.label + " disponível · Ler agora →";
-  $("latest-chapter").href = "#ler/" + newest.id;
-  $("latest-chapter").hidden = false;
-}
-
 // Cria um elemento HTML e insere texto com textContent, sem interpretar o texto como código.
 function node(tag, className, value) {
   const element = document.createElement(tag);
@@ -30,6 +21,7 @@ function node(tag, className, value) {
 
 // Filtra a lista de obras e monta cada cartão com capa, sinopse e link de leitura.
 function drawShelf() {
+  updateComicButton();
   const books = catalog.filter(book => filter === "todos" || book.type === filter);
   $("books").replaceChildren(...books.map(book => {
     const card = node("article", "book");
@@ -97,6 +89,42 @@ function resumePoint(book) {
   if (!entry?.pages?.length) return null;
   const index = savedPage(entry);
   return index === null ? null : { entry, index };
+}
+
+// Guarda os capítulos conhecidos quando o visitante começa ou retoma a leitura.
+// A comparação usa identificadores para detectar lançamentos futuros.
+function knownChapters(series) {
+  try {
+    const ids = JSON.parse(stored("estante-conhecidos-" + series.id));
+    return Array.isArray(ids) && ids.every(id => typeof id === "string") ? ids : null;
+  } catch { return null; }
+}
+
+function rememberChapters(series) {
+  try {
+    localStorage.setItem("estante-conhecidos-" + series.id, JSON.stringify(series.chapters.map(chapter => chapter.id)));
+  } catch {}
+}
+
+function updateComicButton() {
+  const series = catalog.find(book => book.id === "ultima-luz");
+  if (!series) return;
+  const reading = resumePoint(series);
+  const link = $("comic-feature");
+  $("comic-action").textContent = reading ? "Continuar… →" : "Ler o quadrinho →";
+  link.href = "#quadrinho/" + series.id;
+  let hasNewChapter = false;
+  if (reading) {
+    const known = knownChapters(series);
+    // Históricos anteriores a este recurso recebem o catálogo atual como referência.
+    if (known === null) rememberChapters(series);
+    else hasNewChapter = series.chapters.some(chapter => !known.includes(chapter.id));
+    const { entry, index } = reading;
+    const following = series.chapters[series.chapters.indexOf(entry) + 1];
+    link.href = index === entry.pages.length - 1 && following
+      ? "#ler/" + following.id + "/1" : "#ler/" + entry.id + "/" + (index + 1);
+  }
+  $("comic-update").hidden = !hasNewChapter;
 }
 
 // As imagens seguintes no modo contínuo carregam conforme se aproximam da tela.
@@ -169,6 +197,7 @@ function drawPage(index, scroll = false) {
 function openBook(book, requestedPage, series) {
   activeBook = book;
   activeSeries = series;
+  if (series) rememberChapters(series);
   continuous = book.type === "quadrinho" && stored("estante-modo-leitura") === "continuo";
   $("reading-mode").hidden = book.type !== "quadrinho";
   $("reading-mode").setAttribute("aria-pressed", String(continuous));

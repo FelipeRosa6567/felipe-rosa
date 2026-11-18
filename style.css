@@ -62,8 +62,8 @@ nav{display:flex;align-items:center;gap:26px;font-size:.84rem}
 .chapter h3{padding:12px;font-size:clamp(26px,4vw,38px)}
 .chapter-name{padding:0 12px 14px;color:var(--muted);font-size:.88rem}
 .chapter-progress{padding:0 12px 14px;color:var(--accent);font-size:.8rem}
-.latest-chapter{display:block;width:fit-content;margin-top:22px;padding:11px 14px;border:1px solid var(--accent);border-radius:5px;color:var(--accent);font-size:.85rem}
-.latest-chapter:hover{background:var(--surface)}
+.comic-button{flex-direction:column;gap:2px;padding-block:8px}
+.comic-button small{font-size:.72rem;font-weight:500}
 .reader-stage.continuous{display:flex;flex-direction:column;align-items:center;gap:14px}
 .continuous .comic-page{width:min(100%,850px);max-height:none;height:auto;aspect-ratio:auto 2/3;scroll-margin-top:16px}
 .continuous .status{min-height:200px}
