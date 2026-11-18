@@ -7,6 +7,18 @@ let activeSeries;
 let pageIndex = 0;
 let filter = "todos";
 let touchStart;
+let continuous = false;
+let scrollFrame = 0;
+let nextImage;
+
+// O destaque acompanha automaticamente o último capítulo do catálogo.
+const newestSeries = catalog.find(book => book.chapters?.length);
+if (newestSeries) {
+  const newest = newestSeries.chapters.at(-1);
+  $("latest-chapter").textContent = newest.label + " disponível · Ler agora →";
+  $("latest-chapter").href = "#ler/" + newest.id;
+  $("latest-chapter").hidden = false;
+}
 
 // Cria um elemento HTML e insere texto com textContent, sem interpretar o texto como código.
 function node(tag, className, value) {
@@ -87,21 +99,45 @@ function resumePoint(book) {
   return index === null ? null : { entry, index };
 }
 
+// As imagens seguintes no modo contínuo carregam conforme se aproximam da tela.
+function pageElement(page, index) {
+  const element = page.image ? node("img", "comic-page") : node("article", "text-page", page.text);
+  element.dataset.page = index;
+  if (page.image) {
+    element.loading = continuous ? "lazy" : "eager";
+    element.decoding = "async";
+    element.src = page.image;
+    element.alt = page.alt || "Página " + (index + 1) + " de " + activeBook.title;
+    element.draggable = false;
+    element.addEventListener("error", () => {
+      if (element.isConnected) {
+        const message = node("p", "status", "Esta página não carregou. Recarregue para tentar novamente.");
+        message.dataset.page = index;
+        element.replaceWith(message);
+      }
+    }, { once: true });
+  }
+  return element;
+}
+
 // Mostra a página escolhida, atualiza os botões e salva o ponto de leitura.
 function drawPage(index, scroll = false) {
   if (!activeBook) return;
   pageIndex = Math.max(0, Math.min(activeBook.pages.length - 1, index));
   const page = activeBook.pages[pageIndex];
-  const element = page.image ? node("img", "comic-page") : node("article", "text-page", page.text);
-  if (page.image) {
-    element.src = page.image;
-    element.alt = page.alt || "Página " + (pageIndex + 1) + " de " + activeBook.title;
-    element.draggable = false;
-    element.addEventListener("error", () => {
-      if (element.isConnected) element.replaceWith(node("p", "status", "Esta página não carregou. Você pode tentar novamente ou avançar."));
-    }, { once: true });
+  const stage = $("reader-stage");
+  if (continuous) {
+    if (!stage.childElementCount) stage.replaceChildren(...activeBook.pages.map(pageElement));
+    if (scroll) stage.children[pageIndex].scrollIntoView({ block: "start", behavior: "instant" });
+  } else {
+    stage.replaceChildren(pageElement(page, pageIndex));
+    // Mantém apenas uma imagem antecipada, reutilizada pelo cache do navegador.
+    const following = activeBook.pages[pageIndex + 1]?.image;
+    if (following && nextImage?.getAttribute("src") !== following) {
+      nextImage = new Image();
+      nextImage.src = following;
+    }
   }
-  $("reader-stage").replaceChildren(element);
   $("previous").disabled = pageIndex === 0;
   const lastPage = pageIndex === activeBook.pages.length - 1;
   const chapters = activeSeries?.chapters;
@@ -117,21 +153,28 @@ function drawPage(index, scroll = false) {
   } else if (document.activeElement === chapterLink && !$("next").disabled) {
     $("next").focus();
   }
-  $("zoom").hidden = !page.image;
+  $("zoom").hidden = continuous || !page.image;
   $("jump").value = String(pageIndex);
   $("reader-status").textContent = page.label === "Capa" ? "Capa" :
     "Página " + (page.label ? page.label.replace(" / ", " de ") : (pageIndex + 1) + " de " + activeBook.pages.length);
   try {
     localStorage.setItem(storageKey(activeBook), String(pageIndex));
     if (activeSeries) localStorage.setItem("estante-capitulo-" + activeSeries.id, activeBook.id);
+    if (lastPage) localStorage.setItem("estante-concluido-" + activeBook.id, "1");
   } catch {}
-  if (scroll) window.scrollTo({ top: 0, behavior: "instant" });
+  if (scroll && !continuous) window.scrollTo({ top: 0, behavior: "instant" });
 }
 
 // Prepara o leitor e abre a página indicada no link ou a última página lida.
 function openBook(book, requestedPage, series) {
   activeBook = book;
   activeSeries = series;
+  continuous = book.type === "quadrinho" && stored("estante-modo-leitura") === "continuo";
+  $("reading-mode").hidden = book.type !== "quadrinho";
+  $("reading-mode").setAttribute("aria-pressed", String(continuous));
+  $("reading-mode").textContent = continuous ? "Virar páginas" : "Leitura contínua";
+  $("reader-stage").classList.toggle("continuous", continuous);
+  $("reader-stage").replaceChildren();
   $("open-contents").hidden = !book.contents;
   $("reader-title").textContent = book.title;
   $("reader-type").textContent = categories[book.type];
@@ -161,6 +204,12 @@ function openSeries(series) {
     image.alt = "";
     link.append(image, node("h3", "", chapter.label));
     if (chapter.name) link.append(node("p", "chapter-name", chapter.name));
+    const saved = savedPage(chapter);
+    const completed = stored("estante-concluido-" + chapter.id) === "1" || saved === chapter.pages.length - 1;
+    if (completed || saved !== null) {
+      link.append(node("p", "chapter-progress", completed ? "Concluído" :
+        saved === 0 ? "Em leitura · capa" : "Em leitura · página " + saved));
+    }
     return link;
   }));
   window.scrollTo({ top: 0, behavior: "instant" });
@@ -220,6 +269,34 @@ $("zoom").onclick = () => {
   $("zoom").setAttribute("aria-pressed", String(zoomed));
   $("zoom").textContent = zoomed ? "Ajustar" : "Ampliar";
 };
+// Alterna o formato preservando a página atual e a preferência neste navegador.
+$("reading-mode").onclick = () => {
+  const current = pageIndex;
+  continuous = !continuous;
+  try { localStorage.setItem("estante-modo-leitura", continuous ? "continuo" : "paginas"); } catch {}
+  $("reading-mode").setAttribute("aria-pressed", String(continuous));
+  $("reading-mode").textContent = continuous ? "Virar páginas" : "Leitura contínua";
+  $("reader-stage").classList.remove("zoomed");
+  $("reader-stage").classList.toggle("continuous", continuous);
+  $("reader-stage").replaceChildren();
+  $("zoom").setAttribute("aria-pressed", "false");
+  $("zoom").textContent = "Ampliar";
+  drawPage(current, true);
+};
+
+// A posição da página na tela atualiza o progresso e o link compartilhado.
+window.addEventListener("scroll", () => {
+  if (!continuous || !activeBook || scrollFrame) return;
+  scrollFrame = requestAnimationFrame(() => {
+    scrollFrame = 0;
+    if (!continuous || !activeBook) return;
+    const pages = [...$("reader-stage").children];
+    const atBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 4;
+    const visible = atBottom ? pages.at(-1) : pages.find(page => page.getBoundingClientRect().bottom > window.innerHeight * .35);
+    const index = Number(visible?.dataset.page);
+    if (Number.isInteger(index) && index !== pageIndex) drawPage(index);
+  });
+}, { passive: true });
 // Os links do sumário usam a numeração original do PDF.
 $("open-contents").onclick = () => {
   const book = activeBook;
@@ -276,7 +353,7 @@ document.addEventListener("keydown", event => {
 });
 // Compara a posição inicial e final do dedo para reconhecer um deslize horizontal.
 $("reader-stage").addEventListener("touchstart", event => {
-  touchStart = event.touches.length === 1 && !$("reader-stage").classList.contains("zoomed") ? event.touches[0] : undefined;
+  touchStart = !continuous && event.touches.length === 1 && !$("reader-stage").classList.contains("zoomed") ? event.touches[0] : undefined;
 }, { passive: true });
 $("reader-stage").addEventListener("touchcancel", () => { touchStart = undefined; });
 $("reader-stage").addEventListener("touchend", event => {
