@@ -67,6 +67,7 @@ nav{display:flex;align-items:center;gap:26px;font-size:.84rem}
 .reader-stage.continuous{display:flex;flex-direction:column;align-items:center;gap:14px}
 .continuous .comic-page{width:min(100%,850px);max-height:none;height:auto;aspect-ratio:auto 2/3;scroll-margin-top:16px}
 .continuous .status{min-height:200px}
+.reader-controls{flex-wrap:wrap}
 .resume-link{display:block;width:fit-content;margin-top:8px;color:var(--paper);font-size:.8rem;text-decoration:underline;text-underline-offset:3px}
 .resume-link:hover{color:var(--accent)}
 .cover-placeholder{display:grid;place-items:center;text-align:center;aspect-ratio:2/3;padding:14px;background:repeating-linear-gradient(90deg,transparent 0 96%,#ffffff0c 96% 97%,transparent 97%),radial-gradient(ellipse at 40% 40%,#55613c,#303a22);font:italic clamp(22px,2.7vw,42px)/1 var(--display);color:#e1e6bf}

@@ -93,19 +93,19 @@
       <a class="back" id="reader-back" href="#estante">← Voltar à estante</a>
       <div><p id="reader-type" class="eyebrow"></p><h1 id="reader-title" tabindex="-1"></h1></div>
       <div class="reader-actions">
-        <button id="reading-mode" type="button" class="outline" aria-pressed="false" hidden>Leitura contínua</button>
         <button id="open-contents" type="button" class="outline" hidden>Sumário</button>
-        <button id="share-page" type="button" class="outline">Compartilhar esta página</button>
         <button id="zoom" type="button" class="outline" aria-pressed="false">Ampliar</button>
       </div>
     </div>
     <div class="reader-stage" id="reader-stage"></div>
     <!-- Botões para avançar ou voltar e seletor para ir direto a uma página. -->
     <div class="reader-controls">
+      <button id="reading-mode" type="button" class="outline" aria-pressed="false" hidden>Leitura contínua</button>
       <button type="button" id="previous" class="outline" aria-label="Página anterior">← <span>Anterior</span></button>
       <label class="page-picker"><span class="sr-only">Ir para a página</span><select id="jump"></select></label>
       <button type="button" id="next" class="accent" aria-label="Próxima página"><span>Próxima</span> →</button>
       <a id="next-chapter" class="button accent" hidden></a>
+      <button id="share-page" type="button" class="outline">Compartilhar esta página</button>
       <span class="sr-only" id="reader-status" role="status"></span>
     </div>
   </main>
