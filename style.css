@@ -84,7 +84,7 @@ nav{display:flex;align-items:center;gap:26px;font-size:.84rem}
 /* Rodapé e alinhamento dos links. */
 .footer{border-top:1px solid var(--line)}
 .footer .wrap{min-height:80px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.footer a:last-child{font-size:.79rem;color:var(--muted)}
+.footer-actions>a:not(.donation-link){font-size:.79rem;color:var(--muted)}
 /* Tela do leitor, tamanho das páginas, ampliação das imagens e controles de navegação. */
 .reader{min-height:calc(100svh - 77px)}
 .reader-heading{display:grid;grid-template-columns:1fr 2fr 1fr;align-items:center;gap:12px;text-align:center;padding:20px max(16px,calc((100% - 1200px)/2))}
