@@ -62,8 +62,9 @@ nav{display:flex;align-items:center;gap:26px;font-size:.84rem}
 .chapter h3{padding:12px;font-size:clamp(26px,4vw,38px)}
 .chapter-name{padding:0 12px 14px;color:var(--muted);font-size:.88rem}
 .chapter-progress{padding:0 12px 14px;color:var(--accent);font-size:.8rem}
-.comic-button{flex-direction:column;gap:2px;padding-block:8px}
-.comic-button small{font-size:.72rem;font-weight:500}
+/* Posiciona a notificação no canto superior da capa, sem alterar o botão de leitura. */
+.featured-cover{position:relative;display:block}
+.chapter-notification{position:absolute;top:10px;right:10px;padding:6px 10px;border-radius:999px;background:var(--accent);color:var(--ink);font-size:.7rem;font-weight:800;letter-spacing:.07em;line-height:1.2;box-shadow:0 2px 10px #0006;border:1px solid #17161033}
 .reader-stage.continuous{display:flex;flex-direction:column;align-items:center;gap:14px}
 .continuous .comic-page{width:min(100%,850px);max-height:none;height:auto;aspect-ratio:auto 2/3;scroll-margin-top:16px}
 .continuous .status{min-height:200px}
