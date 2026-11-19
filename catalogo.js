@@ -26,7 +26,7 @@ window.ESTANTE_INICIAL = [
     cover: "arte/capa-ultima-luz.jpg",
     summary: "O mundo conhecido acabou. Em meio a uma cidade tomada pelos mortos, sobreviver é só o começo.",
     // A ordem desta lista define a ordem em que as capas aparecem na tela de capítulos.
-    chapters: [chapter(1, "jpg", "Acorda, Celina"), chapter(2, "webp", "Vamos juntos"), chapter(3, "webp", "Reencontro sob cerco"), chapter(4, "webp", "O que resta"), chapter(5, "webp", "Uma noite de cada vez", "09daa6a8f3dd"), chapter(6, "webp", "Cada um por um lado"), chapter(7, "webp", "Do outro lado da grade"), chapter(8, "webp", "Antes do fim do mês", "2140f6c76775"), chapter(9, "webp", "Depois do clarão"), chapter(10, "webp", "A gente pode dividir")]
+    chapters: [chapter(1, "jpg", "Acorda, Celina"), chapter(2, "webp", "Vamos juntos"), chapter(3, "webp", "Reencontro sob cerco"), chapter(4, "webp", "O que resta"), chapter(5, "webp", "Uma noite de cada vez", "09daa6a8f3dd"), chapter(6, "webp", "Cada um por um lado"), chapter(7, "webp", "Do outro lado da grade"), chapter(8, "webp", "Antes do fim do mês", "2140f6c76775"), chapter(9, "webp", "Depois do clarão"), chapter(10, "webp", "A gente pode dividir", "b018268bf72b")]
   },
   {
     // O livro de poesia usa uma imagem por página para preservar a diagramação do PDF.
